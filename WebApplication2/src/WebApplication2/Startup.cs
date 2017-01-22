@@ -13,6 +13,7 @@ using WebApplication2.Data;
 using WebApplication2.Models;
 using WebApplication2.Services;
 using ZavicajnoDrustvo.Database;
+using Microsoft.AspNetCore.Session;
 
 namespace WebApplication2
 {
@@ -53,8 +54,10 @@ namespace WebApplication2
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ZavDruDBContext>()
                 .AddDefaultTokenProviders();
-
             services.AddMvc();
+            services.AddDistributedMemoryCache(); // Adds a default in-memory implementation of IDistributedCache
+            services.AddSession();
+            
             //services.AddTransient<ITodoRepository, TodoSqlRepository>();
             var optionsBuilder = new DbContextOptionsBuilder<ZavDruDBContext>();
             optionsBuilder.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
@@ -69,7 +72,7 @@ namespace WebApplication2
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
+            
             app.UseApplicationInsightsRequestTelemetry();
 
             if (env.IsDevelopment())
@@ -90,7 +93,7 @@ namespace WebApplication2
             app.UseIdentity();
 
             // Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
-
+            app.UseSession();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

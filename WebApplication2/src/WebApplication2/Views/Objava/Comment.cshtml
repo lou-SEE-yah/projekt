@@ -1,0 +1,23 @@
+﻿@model ZavicajnoDrustvo.Models.KomentarViewModel
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Comment</title>
+</head>
+<body>
+    <br />
+    <br />
+    <br />
+    Komentiraj:
+    @using (Html.BeginForm("Comment", "Objava", FormMethod.Post)) { 
+    <div class="form-group">
+        @Html.TextAreaFor(m => m.comment, new { @class = "form-control" })
+
+        <input type="Submit" value="Objavi" id="comment" class="btn"/>
+    </div>
+    }
+</body>
+</html>

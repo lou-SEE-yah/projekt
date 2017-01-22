@@ -1,0 +1,46 @@
+﻿@model ZavicajnoDrustvo.Models.ApproveViewModel
+
+@{
+    ViewBag.Title = "EditKategorija";
+    var kategorija = Model.groupList.Where(g => g.kategorijaID.ToString() == Model.id).First();
+}
+
+<h2>EditKategorija @Model.groupList.Where(g=>g.kategorijaID.ToString()==Model.id).First().nazivKategorija</h2>
+<head>
+    <link rel="stylesheet" href="~/Content/Site.css" type="text/css">
+</head>
+@if(Session["UserName"].ToString()=="admin"||kategorija.voditeljID==Session["UserName"].ToString()){
+<table class="table">
+    <thead>
+        <tr><th>Korisnik</th><th>Je odobren?</th></tr>
+        @foreach (var grupa in Model.usersToApprove)
+        {
+            if (grupa.jeOdobren == null)
+            {
+                grupa.jeOdobren = false;
+            }
+
+                <tr><td>@grupa.korisnikID</td>  <td>@Html.ActionLink(grupa.jeOdobren.ToString(), "ApproveKorisnik", new { id = grupa.kategorijaID.ToString() ,korid=grupa.korisnikID.ToString()}, null)</td></tr>
+        }
+    </thead>
+</table>
+
+<table class="table">
+    <thead>
+        <tr><th>Tema</th><th>Je odobrena?</th></tr>
+        @foreach (var grupa in Model.topics)
+        {
+            if (grupa.jeOdobren == null)
+            {
+                grupa.jeOdobren = false;
+            }
+
+                <tr><td>@Html.ActionLink(@grupa.nazivTema, "EditTema", new { id = grupa.temaID.ToString() }, null)</td>  <td>@Html.ActionLink(grupa.jeOdobren.ToString(), "ApproveTema", new { id1 = grupa.temaID.ToString(), id2 = Model.id }, null)</td></tr>
+        }
+    </thead>
+</table>
+}
+else
+{
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1" frameborder="0" allowfullscreen></iframe>
+}

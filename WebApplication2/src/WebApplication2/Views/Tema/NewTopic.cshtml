@@ -1,0 +1,26 @@
+﻿@model ZavicajnoDrustvo.Models.NovaTemaViewModel
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" href="~/Content/Site.css" type="text/css">
+    @*<meta name="viewport" content="width=device-width" />*@
+    <title>Nova tema</title>
+</head>
+<body>
+    <br />
+    <h2>@Model.InteGru.nazivKategorija</h2>
+    <br />
+    <br />
+    @using (Html.BeginForm("NewTopic", "Tema", FormMethod.Post))
+    {
+        <div class="form-group">
+            <label>Naslov:</label>
+            @Html.TextAreaFor(m => m.topicName, new { @class = "form-control" })
+            <input type="Submit" value="Objavi" class="btn" />
+        </div>
+    }
+</body>
+</html>
+

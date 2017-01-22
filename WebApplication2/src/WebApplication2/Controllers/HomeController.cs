@@ -2,47 +2,122 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication2.Models.AccountViewModels;
 using ZavicajnoDrustvo.Database;
+using ZavicajnoDrustvo.Models;
+
+using System.Web;
+//using System.Web.Mvc;
+
 
 namespace WebApplication2.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ZavDruDBContext ctx;
-        public HomeController(ZavDruDBContext context)
+        public HomeController()
         {
-            ctx = context;
-        }
-        
-        public IActionResult Index()
-        {
-            return View();
+            //this.ctx = DependencyResolver.Current.GetService<ZavDruDBContext>();
         }
 
-        public IActionResult About()
+        public ActionResult Index()
         {
-            ViewData["Message"] = "Your application description page.";
-            Status stat = new Status
+            var model = new HomeViewModel();
+            model.objave = ctx.Objava.Where(o => o.jeOdobren == true).OrderByDescending(o => o.datumObjave).ToList();
+            //Session["UserName"] = "Guest";
+            model.groupList = ctx.Kategorija.ToList();
+            //model.subpage = id;
+            //ViewBag.HiddenFieldValue = id;
+            return View(model);
+        }
+
+        public ActionResult Index2()
+        {
+            var model = new HomeViewModel();
+            Session["UserName"] = "Guest";
+            model.groupList = ctx.Kategorija.ToList();
+            //model.subpage = id;
+            //ViewBag.HiddenFieldValue = id;
+            return View(model);
+        }
+
+        public ActionResult About()
+        {
+            ViewBag.Message = "Your application description page.";
+            var model = new HomeViewModel();
+            model.groupList = ctx.Kategorija.ToList();
+            return View(model);
+        }
+
+        public ActionResult Contact()
+        {
+            ViewBag.Message = "Your contact page.";
+            var model = new HomeViewModel();
+            model.groupList = ctx.Kategorija.ToList();
+            return View(model);
+        }
+
+        public ActionResult Search(string query)
+        {
+            if (query != "")
             {
-               nazivStatus = "ja",
-                statusID = 20
-            };
-            ctx.Status.Add(stat);
-            ctx.SaveChanges();
-            return View();
+                var model = new HomeViewModel();
+                model.groupList = ctx.Kategorija.ToList();
+                model.query = query;
+                model.objave = ctx.Objava.ToList().Where(o => o.jeOdobren == true);
+                return View(model);
+            }
+            return Redirect(Request.UrlReferrer.ToString());
         }
 
-        public IActionResult Contact()
+        public ActionResult Welcome(LoginViewModel model)
         {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
+            model.groupList = ctx.Kategorija.ToList();
+            return View(model);
         }
 
         public IActionResult Error()
         {
             return View();
+        }
+
+        public ActionResult NewGroup()
+        {
+            var model = new HomeViewModel();
+            model.groupList = ctx.Kategorija.ToList();
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<ActionResult> NewGroup(HomeViewModel model)
+        {
+            var a = Session["UserName"].ToString();
+            var user = ctx.Korisnik.Where(k => k.korisnikID == a).First();
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var kategorija = new Kategorija
+                    {
+                        kategorijaID = ctx.Kategorija.Count() + 1,
+                        nazivKategorija = model.name,
+                        voditeljID = user.korisnikID,
+                        jeOdobren = false
+                    };
+                    ctx.Kategorija.Add(kategorija);
+                    ctx.SaveChanges();
+                    ModelState.AddModelError("", "????");
+                    return RedirectToAction("Index", "Home");
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Greška pri dodavanju.");
+                }
+            }
+            return RedirectToAction("Index", "Home");
         }
     }
 }

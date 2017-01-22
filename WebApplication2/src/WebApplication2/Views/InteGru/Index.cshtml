@@ -1,0 +1,68 @@
+﻿@model ZavicajnoDrustvo.Models.InteGruViewModel
+@{
+    ViewBag.Title = Model.name;
+}
+
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="~/Content/Site.css" type="text/css">
+</head>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@Model.name</title>
+</head>
+<body>
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="text-align:left">
+                    <h1>
+                        @Model.name
+                        <span style="float:right"> Voditelj: @Model.leader.korisnikID</span>
+                    </h1>
+                </th>
+            </tr>
+        </thead>
+
+        @if (Model.topicList.LongCount() > 0)
+            {
+                foreach (var tema in Model.topicList)
+                {
+                @*<a>@tema.nazivTema</a><br />*@
+        if (tema.kategorijaID == Model.groupID && tema.jeOdobren == true)
+        {
+            @*<a href="@Model.name/@tema.nazivTema">@tema.nazivTema</a><br />*@
+            <tr>
+                <td>@Html.ActionLink(tema.nazivTema.ToString(), "Index", "Tema", new { id = tema.nazivTema }, null)</td>
+            </tr>
+                }
+            }
+        }
+
+    </table>
+
+    @if (Session["UserName"].ToString() != "Guest")
+    {
+        <p>@Html.ActionLink("Nova tema", "NewTopic", "Tema", new { id = Model.groupID }, new { @class = "btn btn-primary" })</p>
+    }
+
+    @if (Session["UserName"].ToString() != "Guest" && Model.members.Where(k=>k.korisnikID == Session["UserName"].ToString() && k.kategorijaID  == Model.groupID).FirstOrDefault() == null)
+    {
+        <p>@Html.ActionLink("Učlani se u interesnu granu", "Member", "InteGru", new { id = Model.groupID }, new { @class = "btn btn-primary" })</p>
+    }
+    
+    @if (Model.members.Where(k => k.korisnikID == Session["UserName"].ToString() && k.kategorijaID == Model.groupID && k.jeOdobren == true).FirstOrDefault() != null)
+    {
+        <p>@Html.ActionLink("Pregledaj članove grupe", "ViewMembers", "InteGru", new { id = Model.groupID }, new { @class = "btn btn-primary" })</p>
+    }
+
+@if (Model.leader.korisnikID == Session["UserName"].ToString())
+    {
+        <p>
+            @Html.ActionLink("Odobravanje sadržaja", "Index", "Approve")
+        </p>
+    }
+
+</body>
+</html>

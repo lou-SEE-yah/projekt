@@ -1,0 +1,189 @@
+﻿@using ZavicajnoDrustvo.Database
+@using System.Runtime.InteropServices.ComTypes
+@model WebApplication2.Models.AccountViewModels.AccountInfoModel
+@{
+    ViewBag.Title = "Account info";
+    var ctx = new ZavDruDBContext();
+    List<Službe> sluzbe = ctx.Službe.Where(k => k.korisnikID == Model.userInfo.korisnikID).ToList();
+    List<PripadnostKorisnikKategorija> grane = ctx.PripadnostKorisnikKategorija.Where(k => k.korisnikID == Model.userInfo.korisnikID).ToList();
+    List<PripadnostKorisnikKategorija> graneCurrent = ctx.PripadnostKorisnikKategorija.Where(k => k.korisnikID == Model.userCurrentID).ToList();
+
+}
+
+<h2>@ViewBag.Title.</h2>
+
+@Html.AntiForgeryToken()
+
+<hr />
+@Html.ValidationSummary("", new { @class = "text-danger" })
+@if (Model.userInfo.statusID != 7)
+{
+    <div class="form-group">
+        <label class="control-label col-sm-2">Ime:</label>
+        <p>@Model.userInfo.ime</p>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">Prezime:</label>
+        <p>@Model.userInfo.prezime</p>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-sm-2">Spol:</label>
+        <p>@Model.userInfo.spol</p>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">Korisničko ime:</label>
+        <p>@Model.userInfo.korisnikID</p>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">Avatar:</label>
+        @if (Model.userInfo.brojTelefona == null)
+        {
+            <p>/</p>
+        }
+        else
+        {
+            <img src=@Model.userInfo.avatar style="max-width: 130px; max-height: 130px">
+        }
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">Datum učlanjenja:</label>
+        <p>@Model.userInfo.datumUčlanjenja</p>
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-sm-2">Popis dosadašnjih službi:</label>
+        @if (sluzbe.Count == 0)
+        {
+            <p>/</p>
+            <br />
+        }
+        else
+        {
+            foreach (Službe s in sluzbe)
+            {
+                <p>@ctx.Status.Where(k => k.statusID == s.statusID).First().nazivStatus</p>
+                <br />
+            }
+        }
+    </div>
+
+    <div class="form-group">
+        <label class="control-label col-sm-2">Pripadnost interesnim granama:</label>
+        @if (grane.Count == 0)
+        {
+            <p>/</p>
+            <br />
+        }
+        else
+        {
+            foreach (PripadnostKorisnikKategorija mem in grane)
+            {
+                <p>@ctx.Kategorija.Where(k => k.kategorijaID == mem.kategorijaID).First().nazivKategorija</p>
+                <br />
+            }
+        }
+    </div>
+
+    if (Model.userInfo.statusID <= 4 || Model.userCurrentID == Model.userInfo.korisnikID || Model.member == true)
+    {
+        <div class="form-group">
+            <label class="control-label col-sm-2">Email:</label>
+            <p>@Model.userInfo.email</p>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Broj telefona:</label>
+            @if (Model.userInfo.brojTelefona == null)
+            {
+                <p>/</p>
+            }
+            else
+            {
+                <p>@Model.userInfo.brojTelefona</p>
+            }
+        </div>
+    }
+    if (Model.userInfo.statusID <= 3 || Model.userCurrentID == Model.userInfo.korisnikID)
+    {
+        <div class="form-group">
+            <label class="control-label col-sm-2">OIB:</label>
+            <p>@Model.userInfo.OIB</p>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Mjesto stanovanja:</label>
+            <p>@Model.userInfo.Mjesto.imeMjesta</p>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Adresa:</label>
+            <p>@Model.userInfo.adresa</p>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Poštanski broj:</label>
+            @if (Model.userInfo.poštanskiBroj == null)
+            {
+                <p>/</p>
+            }
+            else
+            {
+                <p>@Model.userInfo.poštanskiBroj</p>
+            }
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Datum rođenja:</label>
+            @if (Model.userInfo.datumRođenja == null)
+            {
+                <p>/</p>
+            }
+            else
+            {
+                <p>@Model.userInfo.datumRođenja</p>
+            }
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2">Status:</label>
+            <p>@Model.userInfo.Status.nazivStatus</p>
+        </div>
+    }
+
+
+    if (Model.userCurrentID == Model.userInfo.korisnikID)
+    {
+        <div class="form-group">
+            <p>
+                @Html.ActionLink("Edit account info", "EditInfo")
+            </p>
+        </div>
+        <div class="form-group">
+            <p>
+                @Html.ActionLink("Change password", "ResetPassword")
+            </p>
+        </div>
+        <div class="form-group">
+            <p>
+                @Html.ActionLink("Pregledaj članove društva", "ViewUsers")
+            </p>
+        </div>
+
+        <div class="form-group">
+            @if (Model.userInfo.statusID <= 4)
+            {
+                <p>
+                    @Html.ActionLink("Odobravanje sadržaja", "Index", "Approve")
+                </p>
+            }
+        </div>
+        <div class="form-group">
+            @if (Model.userInfo.statusID == 1)
+            {
+                <p>
+                    @Html.ActionLink("Izbor vodstva", "Vodstvo", "Approve")
+                </p>
+            }
+        </div>
+    }
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

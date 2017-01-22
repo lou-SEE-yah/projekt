@@ -1,0 +1,50 @@
+﻿@using Microsoft.Ajax.Utilities
+@model ZavicajnoDrustvo.Models.TemaViewModel
+@{
+    ViewBag.Title = Model.topicName;
+}
+
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="~/Content/Site.css" type="text/css">
+</head>
+<style>
+
+    body {
+    background-image:url(@Model.topic.backgroundPicture)
+    }
+
+</style>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@Model.topicName</title>
+</head>
+<body>
+    <div>
+    
+    </div>
+    <table class="table">
+        <thead><tr><th colspan="3" style="text-align:center"><h1>@Model.topicName</h1></th></tr></thead>
+        <tr><th>Naslov</th><th>Autor</th><th>Datum objave</th></tr>
+    @foreach (var objava in Model.threadList.OrderByDescending(m=>m.datumObjave))
+    {
+        var user = Session["Username"].ToString();
+        if (user == "Guest" && objava.jeJavna && objava.jeOdobren == true)
+        {
+            @*<a>@objava.naslov, @objava.autor, @objava.datumObjave.ToShortDateString(), javno</a>*@
+            <tr><td>@Html.ActionLink(objava.naslov, "Index", "Objava", new { id = objava.objavaID,bp=Model.topic.temaID }, new { @style = "color:#000000;" })</td><td>@objava.autor</td><td>@objava.datumObjave</td></tr>
+        }
+        else if (user != "Guest" && objava.jeOdobren == true)
+        {
+            @*<a>@objava.naslov, @objava.autor, @objava.datumObjave.ToShortDateString(), javno</a>*@
+            <tr><td>@Html.ActionLink(objava.naslov, "Index", "Objava", new { id = objava.objavaID, bp = Model.topic.temaID }, new { @style = "color:#000000;" })</td><td>@objava.autor</td><td>@objava.datumObjave</td></tr>
+        }
+    }
+        </table>
+    @if (Session["UserName"].ToString() != "Guest")
+    {
+        <p>@Html.ActionLink("Nova objava", "NewPost", "Objava", new { id = Model.topicID}, new { @class="btn btn-primary"})</p>
+    }
+</body>
+</html>

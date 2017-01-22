@@ -1,0 +1,15 @@
+﻿@model ZavicajnoDrustvo.Models.InteGruViewModel
+@{
+    ViewBag.Title = "Članovi";
+}
+
+<h2>Članovi</h2>
+@foreach (var member in Model.members)
+{
+    if (member.jeOdobren == true)
+    {
+        <p>
+            @Html.ActionLink(member.korisnikID, "AccountInfo", "Account", new { id = member.korisnikID , member = true}, null)
+        </p>
+    }
+}

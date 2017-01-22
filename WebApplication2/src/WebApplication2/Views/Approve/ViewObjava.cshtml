@@ -1,0 +1,11 @@
+﻿@model ZavicajnoDrustvo.Models.ApproveViewModel
+
+@{
+    ViewBag.Title = "View";
+    var objava = Model.objave.First();
+}
+
+<h2>View</h2>
+<p>@objava.naslov</p>
+@Html.Raw(objava.sadrzaj)
+

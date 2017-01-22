@@ -1,0 +1,39 @@
+﻿@model ZavicajnoDrustvo.Models.ApproveViewModel
+@using ZavicajnoDrustvo.Database
+
+@{
+    ViewBag.Title = "EditTema";
+    var ctx = new ZavDruDBContext();
+    var tema = ctx.Tema.Where(t => t.temaID.ToString() == Model.id).First();
+    var kategorija = ctx.Kategorija.Where(o=>o.kategorijaID==tema.kategorijaID).First();
+}
+
+<h2>EditTema @tema.nazivTema</h2>
+<head>
+    <link rel="stylesheet" href="~/Content/Site.css" type="text/css">
+</head>
+@if (Session["UserName"].ToString() == "admin" || kategorija.voditeljID == Session["UserName"].ToString())
+{
+    <table class="table">
+        <thead>
+            <tr><th>Objava</th><th>Je odobren?</th><th>Je javna?</th></tr>
+            @foreach (var grupa in Model.objave)
+            {
+                if (grupa.jeOdobren == null)
+                {
+                    grupa.jeOdobren = false;
+                }
+
+                    <tr><td>@Html.ActionLink(@grupa.naslov, "ViewObjava", new { id = grupa.objavaID.ToString() }, null)</td>  <td>@Html.ActionLink(grupa.jeOdobren.ToString(), "ApproveObjava", new { id = grupa.objavaID.ToString() }, null)</td> <td>@Html.ActionLink(grupa.jeJavna.ToString(), "MakeObjavaPublic", new { id = grupa.objavaID.ToString() }, null)</td></tr>
+            }
+        </thead>
+    </table>
+    using (Html.BeginForm("EditTema", "Approve", FormMethod.Post))
+    {
+        <p> Link za pozadinsku sliku</p> @Html.TextBoxFor(m => m.backgroundPic, new { @class = "form-control", Value = ctx.Tema.Where(t => t.temaID.ToString() == Model.id).First().backgroundPicture })
+        <input type="Submit" value="Dodaj sliku" class="btn" />
+    }
+}
+else
+{
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&autoplay=1" frameborder="0" allowfullscreen></iframe>}

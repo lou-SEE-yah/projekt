@@ -1,0 +1,68 @@
+﻿@using ZavicajnoDrustvo.Database
+@model ZavicajnoDrustvo.Models.ObjavaViewModel
+@{
+    ViewBag.Title = Model.thread.naslov;
+    var ctx = new ZavDruDBContext();
+    var bpx = "";
+    if (ctx.Tema.Where(t => t.temaID.ToString() == Model.bp).Count() > 0)
+    {
+        var tema = ctx.Tema.Where(t => t.temaID.ToString() == Model.bp).First();
+        bpx = tema.backgroundPicture;
+    }
+
+}
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" href="~/Content/Site.css" type="text/css">
+</head>
+<style>
+
+    body {
+    background-image:url(@bpx)
+    }
+
+</style>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@Model.thread.naslov</title>
+</head>
+<body>
+    <div class="jumbotron">
+        <h1>@Model.thread.naslov</h1>
+        <h4>Autor: @Model.thread.autor, datum objave:@Model.thread.datumObjave.ToShortDateString()</h4>
+        <p>@Html.Raw(Model.thread.sadrzaj)</p>
+    </div>
+    <div>
+        @Html.ActionLink("Komentiraj", "Comment", new { id = Model.thread.objavaID },new { @class="btn btn-primary"}) <br />
+
+        @*ovdje će biti komentari*@
+    </div>
+    <div>
+        @if (Model.thread.Komentar.ToList().Count() == 0)
+        {
+            <b>Nema komentara</b>
+        }
+
+        else
+        {
+            <table class="table">
+                <col width="130">
+                <thead><tr><th colspan="2">Komentari</th></tr></thead>
+                @foreach (var komentar in Model.thread.Komentar.ToList())
+                {
+                    <tr>
+                        <td><i>@komentar.korisničkoIme.Trim()</i>
+                        <img src=@ctx.Korisnik.Where(k=>k.korisnikID==komentar.korisničkoIme).First().avatar style="max-width:130px;max-height:130px"></td>
+                        <td>@Html.Raw(komentar.sadržaj)</td>
+                    </tr>
+                }
+            </table>
+
+
+
+        }
+    </div>
+</body>
+</html>

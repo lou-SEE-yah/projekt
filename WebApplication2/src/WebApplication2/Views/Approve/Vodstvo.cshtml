@@ -1,0 +1,30 @@
+﻿@model ZavicajnoDrustvo.Models.VodstvoViewModel
+@using ZavicajnoDrustvo.Database
+
+@{
+    ViewBag.Title = "Vodstvo";
+}
+
+<h2>Vodstvo</h2>
+
+@Html.AntiForgeryToken()
+
+<hr />
+@Html.ValidationSummary("", new { @class = "text-danger" })
+
+
+<div class="form-group">
+    <label class="control-label col-sm-2">Predsjednik:</label>
+    <t>@Model.predsjednik.korisnikID</t>
+</div>
+<div class="form-group">
+    <label class="control-label col-sm-2">Zamjenik:</label>
+    <t>@Model.zamjenik.korisnikID</t>
+</div>
+<div class="form-group">
+    <label class="control-label col-sm-2">Članovi vijeća:</label>
+    @foreach (Korisnik kor in Model.vodstvo)
+    {
+        <t>@kor.ime @kor.prezime (@kor.korisnikID)</t><br />
+    }
+</div>

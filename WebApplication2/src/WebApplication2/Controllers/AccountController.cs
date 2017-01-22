@@ -41,12 +41,13 @@ namespace WebApplication2.Controllers
 
         //
         // GET: /Account/Login
-        [HttpGet]
         [AllowAnonymous]
-        public IActionResult Login(string returnUrl = null)
+        public ActionResult Login(string returnUrl)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            var model = new LoginViewModel();
+            model.groupList = ctx.Kategorija.ToList();
+            ViewBag.ReturnUrl = returnUrl;
+            return View(model);
         }
 
         //
@@ -54,47 +55,140 @@ namespace WebApplication2.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
+        public async Task<ActionResult> Login(LoginViewModel model, string returnUrl)
         {
-            ViewData["ReturnUrl"] = returnUrl;
-            if (ModelState.IsValid)
+
+            model.groupList = ctx.Kategorija.ToList();
+            if (!ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation(1, "User logged in.");
-                    return RedirectToLocal(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToAction(nameof(SendCode), new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning(2, "User account locked out.");
-                    return View("Lockout");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
-                }
+                return View(model);
             }
 
-            // If we got this far, something failed, redisplay form
+            if (ctx.Korisnik.ToList().Where(c => (c.email == model.Email && c.lozinka == model.Password)).Count() == 1)
+            {
+                var kor = ctx.Korisnik.ToList().Where(c => (c.email == model.Email && c.lozinka == model.Password)).First();
+                model.Username = kor.korisnikID;
+                Session["UserName"] = kor.korisnikID;
+                FormsAuthentication.SetAuthCookie(model.Username, false);
+                //FormsAuthentication.RedirectFromLoginPage(kor.korisnikID,true);
+                //return RedirectToLocal(returnUrl);
+                return RedirectToAction("Welcome", "Home");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Greška");
+            }
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, change to shouldLockout: true
+            /*var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
+            switch (result)
+            {
+                case SignInStatus.Success:
+                    return RedirectToLocal(returnUrl);
+                case SignInStatus.LockedOut:
+                    return View("Lockout");
+                case SignInStatus.RequiresVerification:
+                    return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
+                case SignInStatus.Failure:
+                default:
+                    ModelState.AddModelError("", "Invalid login attempt.");
+                    return View(model);
+            }*/
+
+            return View(model);
+        }
+
+        [AllowAnonymous]
+        public ActionResult AccountInfo(string id, bool member)
+        {
+            var model = new AccountInfoModel();
+            model.userCurrentID = Session["UserName"].ToString();
+            model.member = member;
+            //Session["UserName"] = Session["UserName"].ToString();
+            var korisnik = ctx.Korisnik.Where(kor => kor.korisnikID == id).First();
+            model.groupList = ctx.Kategorija.ToList();
+            model.userInfo = korisnik;
+            model.userCurrent = ctx.Korisnik.Where(kor => kor.korisnikID == model.userCurrentID).First();
+            //ViewBag.ReturnUrl = returnUrl;
+            return View(model);
+        }
+
+        [AllowAnonymous]
+        public ActionResult ViewUsers(string id)
+        {
+            var model = new AccountInfoModel();
+            model.userCurrentID = Session["UserName"].ToString();
+            //Session["UserName"] = Session["UserName"].ToString();
+
+            model.groupList = ctx.Kategorija.ToList();
+            model.userCurrent = ctx.Korisnik.Where(kor => kor.korisnikID == model.userCurrentID).First();
+            //ViewBag.ReturnUrl = returnUrl;
+            return View(model);
+        }
+
+        [AllowAnonymous]
+        public ActionResult EditInfo()
+        {
+            var model = new EditModel();
+            var a = Session["UserName"].ToString();
+            var korisnik = ctx.Korisnik.Where(kor => (kor.korisnikID == a)).First();
+            model.groupList = ctx.Kategorija.ToList();
+            model.user = korisnik;
+            //ViewBag.ReturnUrl = returnUrl;
+            return View(model);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> EditInfo(EditModel model)
+        {
+            model.groupList = ctx.Kategorija.ToList();
+            var a = Session["UserName"].ToString();
+            var korisnik = ctx.Korisnik.Where(kor => (kor.korisnikID == a)).First();
+            if (ModelState.IsValid)
+            {
+                try
+                {
+
+                    //korisnik.korisnikID = model.Id;
+                    korisnik.email = model.Email;
+                    korisnik.OIB = Convert.ToInt64(model.OIB);
+
+                    korisnik.adresa = model.adresa;
+                    korisnik.brojTelefona = model.brojTelefona;
+                    korisnik.datumRođenja = model.datumRođenja;
+                    //datumUčlanjenja = DateTime.Today,
+                    korisnik.ime = model.ime;
+                    korisnik.prezime = model.prezime;
+                    //korisnik.poštanskiBroj = model.poštanskiBroj;
+                    korisnik.spol = model.spol;
+                    korisnik.avatar = model.bpic;
+
+                    //korisnik = user;
+                    model.user = korisnik;
+                    ctx.Korisnik.AddOrUpdate(korisnik);
+                    ctx.SaveChanges();
+                    //Session["UserName"] = model.Id;
+                    return RedirectToAction("AccountInfo", "Account");
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
             return View(model);
         }
 
         //
         // GET: /Account/Register
-        [HttpGet]
         [AllowAnonymous]
-        public IActionResult Register(string returnUrl = null)
+        public ActionResult Register()
         {
-            ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            var model = new RegisterViewModel();
+            model.groupList = ctx.Kategorija.ToList();
+            return View(model);
         }
 
         //
@@ -102,26 +196,52 @@ namespace WebApplication2.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
+        public async Task<ActionResult> Register(RegisterViewModel model)
         {
-            ViewData["ReturnUrl"] = returnUrl;
+            model.groupList = ctx.Kategorija.ToList();
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var result = await _userManager.CreateAsync(user, model.Password);
+                try
+                {
+                    var user = new Korisnik
+                    {
+                        korisnikID = model.Id,
+                        email = model.Email,
+                        OIB = Convert.ToInt64(model.OIB),
+                        lozinka = model.Password,
+                        adresa = model.adresa,
+                        brojTelefona = model.brojTelefona,
+                        datumRođenja = model.datumRođenja,
+                        datumUčlanjenja = DateTime.Today,
+                        ime = model.ime,
+                        prezime = model.prezime,
+                        poštanskiBroj = model.poštanskiBroj,
+                        spol = model.spol,
+                        statusID = 6
+                    };
+                    ctx.Korisnik.Add(user);
+                    ctx.SaveChanges();
+                    return RedirectToAction("Welcome", "Home");
+
+                }
+                catch (Exception ex)
+                {
+
+                }
+                /*var result = await UserManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=532713
+                    await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
+                    
+                    // For more information on how to enable account confirmation and password reset please visit http://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    //await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                    //    $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    _logger.LogInformation(3, "User created a new account with password.");
-                    return RedirectToLocal(returnUrl);
+                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+
+                    return RedirectToAction("Index", "Home");
                 }
-                AddErrors(result);
+                AddErrors(result);*/
             }
 
             // If we got this far, something failed, redisplay form
@@ -130,13 +250,13 @@ namespace WebApplication2.Controllers
 
         //
         // POST: /Account/LogOff
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> LogOff()
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public ActionResult LogOff()
         {
-            await _signInManager.SignOutAsync();
-            _logger.LogInformation(4, "User logged out.");
-            return RedirectToAction(nameof(HomeController.Index), "Home");
+            Session["UserName"] = "Guest";
+            return RedirectToAction("Index", "Home");
         }
 
         //
@@ -295,11 +415,12 @@ namespace WebApplication2.Controllers
 
         //
         // GET: /Account/ResetPassword
-        [HttpGet]
         [AllowAnonymous]
-        public IActionResult ResetPassword(string code = null)
+        public ActionResult ResetPassword(string code)
         {
-            return code == null ? View("Error") : View();
+            var model = new ResetPasswordViewModel();
+            model.groupList = ctx.Kategorija.ToList();
+            return View(model);
         }
 
         //
@@ -307,34 +428,51 @@ namespace WebApplication2.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        public async Task<ActionResult> ResetPassword(ResetPasswordViewModel model)
         {
+            model.groupList = ctx.Kategorija.ToList();
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
-            var user = await _userManager.FindByNameAsync(model.Email);
-            if (user == null)
+            var id = Session["Username"].ToString();
+            if (ctx.Korisnik.ToList().Where(c => (c.email == model.Email && c.korisnikID == id)).Count() == 1)
             {
-                // Don't reveal that the user does not exist
-                return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
+                var a = Session["UserName"].ToString();
+                var user = ctx.Korisnik.Where(kor => (kor.korisnikID == a)).First();
+                if (user == null)
+                {
+                    // Don't reveal that the user does not exist
+                    return RedirectToAction("ResetPasswordConfirmation", "Account");
+                }
+                /*var result = await UserManager.ResetPasswordAsync(user.korisnikID, model.Code, model.Password);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("ResetPasswordConfirmation", "Account");
+                }
+                AddErrors(result);*/
+                user.lozinka = model.Password;
+                ctx.Korisnik.AddOrUpdate(user);
+                ctx.SaveChanges();
+                Session["UserName"] = "Guest";
+                return RedirectToAction("ResetPasswordConfirmation", "Account");
             }
-            var result = await _userManager.ResetPasswordAsync(user, model.Code, model.Password);
-            if (result.Succeeded)
+            else
             {
-                return RedirectToAction(nameof(AccountController.ResetPasswordConfirmation), "Account");
+                ModelState.AddModelError("", "Pogrešna email adresa");
             }
-            AddErrors(result);
-            return View();
+            return View(model);
+
         }
 
         //
         // GET: /Account/ResetPasswordConfirmation
-        [HttpGet]
         [AllowAnonymous]
-        public IActionResult ResetPasswordConfirmation()
+        public ActionResult ResetPasswordConfirmation()
         {
-            return View();
+            var model = new ResetPasswordViewModel();
+            model.groupList = ctx.Kategorija.ToList();
+            return View(model);
         }
 
         //
@@ -468,3 +606,4 @@ namespace WebApplication2.Controllers
         #endregion
     }
 }
+

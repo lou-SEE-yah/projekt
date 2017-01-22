@@ -1,0 +1,19 @@
+﻿@using ZavicajnoDrustvo.Database
+@model ZavicajnoDrustvo.Models.AccountInfoModel
+@{
+    ViewBag.Title = "Članovi";
+    var ctx = new ZavDruDBContext();
+}
+
+<h2>Članovi</h2>
+@foreach (var user in ctx.Korisnik)
+{
+    if (user.statusID != 7)
+    {
+        <p>
+            @Html.ActionLink(user.korisnikID, "AccountInfo", "Account", new {id = user.korisnikID, member = false}, null)
+        </p>
+    }
+
+}
+

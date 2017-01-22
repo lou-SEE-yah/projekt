@@ -1,0 +1,51 @@
+﻿@model ZavicajnoDrustvo.Models.ApproveViewModel
+@{
+    ViewBag.Title = "Index";
+    var pitanje = "je odobren?";
+}
+<head>
+    <link rel="stylesheet" href="~/Content/Site.css">
+</head>
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+
+    table {
+        border: 1px solid black;
+        border-collapse: collapse;
+        
+    }
+
+    th, td {
+        padding: 2px;
+    }
+
+    td {
+        white-space: pre-wrap;
+        padding-bottom: 10px;
+    }
+
+    th {
+        text-align: left;
+    }
+</style>
+<h2>Odobravanje sadržaja</h2>
+
+    <table class="table">
+        <thead>
+            <tr><th>Interesna skupina</th><th>Je odobrena?</th></tr>
+            @foreach (var grupa in Model.groupListToApprove)
+            {
+                if (grupa.jeOdobren == null)
+                {
+                    grupa.jeOdobren = false;
+                }
+
+                <tr><td>@Html.ActionLink(@grupa.nazivKategorija,"EditKategorija",new { id=grupa.kategorijaID})</td>  <td>@Html.ActionLink(grupa.jeOdobren.ToString(),"ApproveKategorija",new { id=grupa.kategorijaID.ToString()},null)</td></tr>
+            }
+        </thead>
+    </table>
+
+
+

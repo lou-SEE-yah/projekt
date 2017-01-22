@@ -1,0 +1,33 @@
+﻿@model ZavicajnoDrustvo.Models.NovaObjavaViewModel
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>New Post</title>
+</head>
+<body>
+    <br />
+    <br />
+    <br />
+    
+    @using (Html.BeginForm("NewPost", "Objava", FormMethod.Post))
+    {
+        <div class="form-group">
+            <label>Naslov:</label>
+            @Html.TextAreaFor(m => m.naslov, new {@class = "form-control"})
+            <label>Sadržaj:</label>
+            @Html.TextAreaFor(m => m.sadrzaj, new {@class = "form-control"})
+            
+        </div>
+        <div class="form-group">
+            <label>Postavi objavu kao javnu:</label>
+            @Html.CheckBoxFor(m => m.javna, new { @checked = "checked" });
+        </div>
+        <div class="form-group">
+           <input type="Submit" value="Objavi" class="btn" />
+        </div>
+    }
+</body>
+</html>

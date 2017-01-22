@@ -1,0 +1,59 @@
+﻿@model ZavicajnoDrustvo.Models.CheckerViewModel
+@using ZavicajnoDrustvo.Database
+@{ 
+    var a = new ZavDruDBContext();
+    var b = a.Komentar.ToList().Count();
+
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div> 
+        <br />
+        @Model.groupList.Count() od 7 interesnih grana 
+        @if (Model.groupList.Count()>=7) {
+            <b class="glyphicon glyphicon-check"></b>
+        }
+        else
+        {
+            <b class="glyphicon glyphicon-ban-circle"></b>
+        }
+        <br />
+        @Model.objave.Count() od 100 objava
+        @if (Model.objave.Count() >= 100)
+        {
+            <b class="glyphicon glyphicon-check"></b>
+        }
+        else {
+            <b class="glyphicon glyphicon-ban-circle"></b>
+        }
+        <br />
+        @Model.users.Count() od 200 članova
+        @if (Model.users.Count() >= 200)
+        {
+            <b class="glyphicon glyphicon-check"></b>
+        }
+        else
+        {
+            <b class="glyphicon glyphicon-ban-circle"></b>
+        }
+        <br />
+        @Model.topics.Count() od 10 tema
+        @if (Model.topics.Count() >= 10)
+        {
+            <b class="glyphicon glyphicon-check"></b>
+        }
+        else
+        {
+            <b class="glyphicon glyphicon-ban-circle"></b>
+        }
+        <br />
+        Broj komentara @b <br />
+    </div>
+</body>
+</html>

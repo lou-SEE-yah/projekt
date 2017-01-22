@@ -1,0 +1,97 @@
+﻿@model ZavicajnoDrustvo.Models.EditModel
+@{
+    ViewBag.Title = "Edit info";
+}
+
+<h2>@ViewBag.Title.</h2>
+
+
+@using (Html.BeginForm("EditInfo", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+{
+    @Html.AntiForgeryToken()
+    <h4>Edit account info.</h4>
+    <hr />
+    @Html.ValidationSummary("", new { @class = "text-danger" })
+    <div class="form-group">
+        <label class="control-label col-sm-2">Ime:</label>
+        <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+            @Html.TextBoxFor(m => m.ime, new { @class = "form-control", Value = Model.user.ime })
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">Prezime:</label>
+        <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+            @Html.TextBoxFor(m => m.prezime, new { @class = "form-control", Value = Model.user.prezime })
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">Spol:</label>
+        <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+            @Html.TextBoxFor(m => m.spol, new { @class = "form-control", Value = Model.user.spol })
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Email:</label>
+        <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", Value = Model.user.email })
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">OIB:</label>
+        <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+            @Html.TextBoxFor(m => m.OIB, new { @class = "form-control", Value = Model.user.OIB })
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">Adresa:</label>
+        <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+            @Html.TextBoxFor(m => m.adresa, new { @class = "form-control", Value = Model.user.adresa })
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label class="control-label col-sm-2">Tel. broj:</label>
+        @if (Model.user.brojTelefona == null)
+        {
+            <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+                @Html.TextBoxFor(m => m.brojTelefona, new { @class = "form-control" })
+            </div>
+        }
+        else
+        {
+            <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+                @Html.TextBoxFor(m => m.brojTelefona, new { @class = "form-control", Value = Model.user.brojTelefona })
+            </div>
+        }
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2">Datum rođenja:</label>
+        @if (Model.user.datumRođenja == null)
+        {
+            <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+                @Html.TextBoxFor(m => m.datumRođenja, new { @class = "form-control", Value = Model.user.poštanskiBroj })
+            </div>
+        }
+        else
+        {
+            <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+                @Html.TextBoxFor(m => m.datumRođenja, new { @class = "form-control", Value = Model.user.datumRođenja })
+            </div>
+        }
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Avatar link:</label>
+        <div class="col-sm-5" style="width: 100%; margin: 0 auto;">
+            @Html.TextBoxFor(m => m.bpic, new { @class = "form-control", Value = Model.user.avatar })
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-md-offset-2 col-md-10">
+            <input type="submit" class="btn btn-default" value="Save" />
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
