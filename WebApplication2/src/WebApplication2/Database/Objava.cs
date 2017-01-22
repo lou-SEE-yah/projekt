@@ -13,7 +13,7 @@ namespace ZavicajnoDrustvo.Database
         public Objava()
         {
             Komentar = new HashSet<Komentar>();
-            Tema1 = new HashSet<Tema>();
+            //Tema1 = new HashSet<Tema>();
         }
 
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
@@ -44,7 +44,7 @@ namespace ZavicajnoDrustvo.Database
 
         public virtual Tema Tema { get; set; }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Tema> Tema1 { get; set; }
+        /*[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Tema> Tema1 { get; set; }*/
     }
 }

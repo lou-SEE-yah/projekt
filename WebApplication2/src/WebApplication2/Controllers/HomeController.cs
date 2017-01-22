@@ -23,22 +23,12 @@ namespace WebApplication2.Controllers
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
-            Korisnik user = new Korisnik
+            Status stat = new Status
             {
-                korisnikID = "la",
-                email = "mail@fer.hr",
-                OIB = 0123445566712,
-                lozinka = "lozinka",
-                adresa = "lilca",
-                
-                datumUčlanjenja = DateTime.Today,
-                ime = "ja",
-                prezime ="ja",
-                poštanskiBroj = 10000,
-                spol = "M",
-                statusID = 6
+               nazivStatus = "ja",
+                statusID = 20
             };
-            ctx.Korisnik.Add(user);
+            ctx.Status.Add(stat);
             ctx.SaveChanges();
             return View();
         }

@@ -25,5 +25,6 @@ namespace ZavicajnoDrustvo.Database
         public bool? jeOdobren { get; set; }
 
         public virtual Kategorija Kategorija { get; set; }
+        //public virtual Korisnik Korisnik { get; set; }
     }
 }
