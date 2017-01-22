@@ -12,6 +12,8 @@ using WebApplication2.Models;
 using WebApplication2.Models.AccountViewModels;
 using WebApplication2.Services;
 using ZavicajnoDrustvo.Database;
+using Microsoft.AspNetCore.Session;
+using Microsoft.AspNetCore.Http;
 
 namespace WebApplication2.Controllers
 {
@@ -68,8 +70,10 @@ namespace WebApplication2.Controllers
             {
                 var kor = ctx.Korisnik.ToList().Where(c => (c.email == model.Email && c.lozinka == model.Password)).First();
                 model.Username = kor.korisnikID;
-                Session["UserName"] = kor.korisnikID;
-                FormsAuthentication.SetAuthCookie(model.Username, false);
+                HttpContext.Session.SetString("Username", kor.korisnikID.ToString()); // store byte array
+                
+                
+                //FormsAuthentication.SetAuthCookie(model.Username, false);
                 //FormsAuthentication.RedirectFromLoginPage(kor.korisnikID,true);
                 //return RedirectToLocal(returnUrl);
                 return RedirectToAction("Welcome", "Home");
@@ -102,7 +106,8 @@ namespace WebApplication2.Controllers
         public ActionResult AccountInfo(string id, bool member)
         {
             var model = new AccountInfoModel();
-            model.userCurrentID = Session["UserName"].ToString();
+            model.userCurrentID = HttpContext.Session.GetString("Username"); // read from session
+            //model.userCurrentID = Session["UserName"].ToString();
             model.member = member;
             //Session["UserName"] = Session["UserName"].ToString();
             var korisnik = ctx.Korisnik.Where(kor => kor.korisnikID == id).First();
@@ -117,7 +122,7 @@ namespace WebApplication2.Controllers
         public ActionResult ViewUsers(string id)
         {
             var model = new AccountInfoModel();
-            model.userCurrentID = Session["UserName"].ToString();
+            model.userCurrentID = HttpContext.Session.GetString("Username"); // read from session
             //Session["UserName"] = Session["UserName"].ToString();
 
             model.groupList = ctx.Kategorija.ToList();
@@ -130,7 +135,7 @@ namespace WebApplication2.Controllers
         public ActionResult EditInfo()
         {
             var model = new EditModel();
-            var a = Session["UserName"].ToString();
+            var a =  HttpContext.Session.GetString("Username"); // read from session
             var korisnik = ctx.Korisnik.Where(kor => (kor.korisnikID == a)).First();
             model.groupList = ctx.Kategorija.ToList();
             model.user = korisnik;
@@ -144,7 +149,7 @@ namespace WebApplication2.Controllers
         public async Task<ActionResult> EditInfo(EditModel model)
         {
             model.groupList = ctx.Kategorija.ToList();
-            var a = Session["UserName"].ToString();
+            var a = HttpContext.Session.GetString("Username"); // read from session
             var korisnik = ctx.Korisnik.Where(kor => (kor.korisnikID == a)).First();
             if (ModelState.IsValid)
             {
@@ -167,7 +172,8 @@ namespace WebApplication2.Controllers
 
                     //korisnik = user;
                     model.user = korisnik;
-                    ctx.Korisnik.AddOrUpdate(korisnik);
+                    ctx.Korisnik.Update(korisnik);
+                    //ctx.Korisnik.AddOrUpdate(korisnik);
                     ctx.SaveChanges();
                     //Session["UserName"] = model.Id;
                     return RedirectToAction("AccountInfo", "Account");
@@ -255,7 +261,8 @@ namespace WebApplication2.Controllers
         [AllowAnonymous]
         public ActionResult LogOff()
         {
-            Session["UserName"] = "Guest";
+
+            HttpContext.Session.SetString("Username", "Guest"); // store byte array
             return RedirectToAction("Index", "Home");
         }
 
@@ -435,10 +442,10 @@ namespace WebApplication2.Controllers
             {
                 return View(model);
             }
-            var id = Session["Username"].ToString();
+            var id = HttpContext.Session.GetString("Username"); // read from session
             if (ctx.Korisnik.ToList().Where(c => (c.email == model.Email && c.korisnikID == id)).Count() == 1)
             {
-                var a = Session["UserName"].ToString();
+                var a = HttpContext.Session.GetString("Username"); // read from session
                 var user = ctx.Korisnik.Where(kor => (kor.korisnikID == a)).First();
                 if (user == null)
                 {
@@ -452,9 +459,10 @@ namespace WebApplication2.Controllers
                 }
                 AddErrors(result);*/
                 user.lozinka = model.Password;
-                ctx.Korisnik.AddOrUpdate(user);
+                ctx.Korisnik.Update(user);
                 ctx.SaveChanges();
-                Session["UserName"] = "Guest";
+                HttpContext.Session.SetString("Username", "Guest"); // store byte array
+                //Session["UserName"] = "Guest";
                 return RedirectToAction("ResetPasswordConfirmation", "Account");
             }
             else

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using WebApplication2.Models.AccountViewModels;
 using ZavicajnoDrustvo.Database;
 using ZavicajnoDrustvo.Models;
+using Microsoft.AspNetCore.Session;
+using Microsoft.AspNetCore.Http;
 
 using System.Web;
 //using System.Web.Mvc;
@@ -33,15 +35,15 @@ namespace WebApplication2.Controllers
             return View(model);
         }
 
-        public ActionResult Index2()
+        /*public ActionResult Index2()
         {
             var model = new HomeViewModel();
-            Session["UserName"] = "Guest";
+            HttpContext.Session.SetString("Username", "Guest"); // store byte array
             model.groupList = ctx.Kategorija.ToList();
             //model.subpage = id;
             //ViewBag.HiddenFieldValue = id;
             return View(model);
-        }
+        }*/
 
         public ActionResult About()
         {
@@ -59,7 +61,7 @@ namespace WebApplication2.Controllers
             return View(model);
         }
 
-        public ActionResult Search(string query)
+        /*public ActionResult Search(string query)
         {
             if (query != "")
             {
@@ -70,27 +72,27 @@ namespace WebApplication2.Controllers
                 return View(model);
             }
             return Redirect(Request.UrlReferrer.ToString());
-        }
+        }*/
 
-        public ActionResult Welcome(LoginViewModel model)
+        /*public ActionResult Welcome(LoginViewModel model)
         {
             model.groupList = ctx.Kategorija.ToList();
             return View(model);
-        }
+        }*/
 
         public IActionResult Error()
         {
             return View();
         }
 
-        public ActionResult NewGroup()
+        /*public ActionResult NewGroup()
         {
             var model = new HomeViewModel();
             model.groupList = ctx.Kategorija.ToList();
             return View(model);
-        }
+        }*/
 
-        [HttpPost]
+        /*[HttpPost]
         [AllowAnonymous]
         public async Task<ActionResult> NewGroup(HomeViewModel model)
         {
@@ -118,6 +120,6 @@ namespace WebApplication2.Controllers
                 }
             }
             return RedirectToAction("Index", "Home");
-        }
+        }*/
     }
 }
